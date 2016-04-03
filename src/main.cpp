@@ -14,8 +14,12 @@
 #include "materials/metal.h"
 #include "utils.h"
 #include "materials/dialectric.h"
+#include "bvh/bvh_node.h"
+#include "materials/textures/constant_texture.h"
+#include "materials/checker_texture.h"
+#include "materials/textures/noise_texture.h"
 
-vec3 color(const ray &r, surface *world, int depth) {
+vec3 color(const ray &r, hitable *world, int depth) {
     hit_record rec;
     if(world->hit(r, 0.0, FLT_MAX, rec)) {
         ray scattered;
@@ -42,20 +46,43 @@ int main() {
 
     out << "P3\n" << nx << " " << ny << "\n255\n";
 
-    std::vector<surface *> surfaces;
+    std::vector<hitable *> surfaces;
 
-    surfaces.push_back(new sphere(vec3(0, 0, -1), 0.5, new lambertian(vec3(0.1, 0.2, 0.5))));
-    surfaces.push_back(new sphere(vec3(0, -100.5, -1), 100, new lambertian(vec3(0.8, 0.8, 0.0))));
-    surfaces.push_back(new sphere(vec3(1, 0, -1), 0.5, new metal(vec3(0.8, 0.6, 0.2), 0.3)));
-    surfaces.push_back(new sphere(vec3(-1, 0, -1), -0.5, new dialectric(0.5)));
+    surfaces.push_back(
+            new sphere(
+                    vec3(0, 0, -1),
+                    0.5,
+                    new lambertian(new checker_texture(
+                            new constant_texture(vec3(0.2, 0.3, 0.1)),
+                            new constant_texture(vec3(0.9))
+                    ))
+            )
+    );
+    surfaces.push_back(
+            new sphere(
+                    vec3(0, -100.5, -1),
+                    100,
+                    new lambertian(new noise_texture())
+            )
+    );
+    surfaces.push_back(
+            new sphere(
+                    vec3(1, 0, -1),
+                    0.5,
+                    new metal(new constant_texture(vec3(0.8, 0.6, 0.2)), 0.3)));
+    surfaces.push_back(
+            new sphere(
+                    vec3(-1, 0, -1),
+                    0.5,
+                    new dialectric(0.5)));
 
-    surface *world = new scene(surfaces);
-    vec3 lookfrom(3, 3, 2);
+    hitable *world = new bvh_node(surfaces, 0, 0);
+    vec3 lookfrom(1, 1, 2);
     vec3 lookat(0, 0, -1);
     float dist_to_focus = (lookfrom - lookat).length();
-    float aperture = 2.0;
+    float aperture = 0.1;
 
-    camera cam(lookfrom, lookat, vec3(0, 1, 0), 20, float(nx) / float(ny), aperture, dist_to_focus);
+    camera cam(lookfrom, lookat, vec3(0, 1, 0), 30, float(nx) / float(ny), aperture, dist_to_focus);
 
     for(int j = ny - 1; j >= 0; j-- ) {
         for(int i = 0; i < nx; i++) {

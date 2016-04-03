@@ -8,6 +8,7 @@
 
 #include "../vec3.h"
 #include "../ray.h"
+#include "../bvh/aabb.h"
 
 class material;
 
@@ -18,10 +19,10 @@ struct hit_record {
     material *mat;
 };
 
-class surface {
+class hitable {
 public:
     /*!
-     * \brief Determines if a given ray hits this surface.
+     * \brief Determines if a given ray hits this hitable.
      *
      * \param r The ray to check for intersection with
      * \param t_min The minimum allowed ray parameter t
@@ -29,6 +30,7 @@ public:
      * \param rec The hit_record to output hit information with. I expect this struct to grow considerably
      */
     virtual bool hit(const ray &r, float t_min, float t_max, hit_record &rec) const = 0;
+    virtual bool bounding_box(float t0, float t1, aabb &box) const = 0;
 protected:
     material *mat;
 };

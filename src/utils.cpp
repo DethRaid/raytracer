@@ -38,3 +38,19 @@ float schlick(float cosine, float n) {
     r0 = r0 * r0;
     return (float) (r0 + (1 - r0) * pow((1 - cosine), 5));
 }
+
+vec3 fresnel(float cosine, vec3 n) {
+    return n + (1 - n) * pow((1 - cosine), 5);
+}
+
+aabb surrounding_box(const aabb & box0, const aabb & box1) {
+    vec3 small(fmin(box0.min().x(), box1.min().x()),
+               fmin(box0.min().y(), box1.min().y()),
+               fmin(box0.min().z(), box1.min().z()));
+
+    vec3 big(fmax(box0.max().x(), box1.max().x()),
+             fmax(box0.max().y(), box1.max().y()),
+             fmax(box0.max().z(), box1.max().z()));
+
+    return aabb(small, big);
+}

@@ -7,10 +7,10 @@
 
 
 #include "../ray.h"
-#include "../surfaces/surface.h"
+#include "../surfaces/hitable.h"
 
 /*!
- * \brief A material to represent all the material parameters of a PBR surface
+ * \brief A material to represent all the material parameters of a PBR hitable
  */
 class material {
 public:

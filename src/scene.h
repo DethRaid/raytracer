@@ -7,15 +7,15 @@
 
 
 #include <vector>
-#include "surfaces/surface.h"
+#include "surfaces/hitable.h"
 
-class scene : public surface {
+class scene : public hitable {
 public:
     scene() {};
-    scene(std::vector<surface *> l) {list = l;}
+    scene(std::vector<hitable *> l) {list = l;}
     virtual bool hit(const ray &r, float t_min, float t_max, hit_record &rec) const;
 private:
-    std::vector<surface *> list;
+    std::vector<hitable *> list;
 };
 
 

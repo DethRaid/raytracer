@@ -7,14 +7,15 @@
 
 
 #include "material.h"
+#include "textures/texture.h"
 
 class metal : public material {
 public:
-    metal(const vec3 &a, float r);
+    metal(texture * a, float r);
     virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray &scattered) const;
 
 private:
-    vec3 albedo;
+    texture * specular_color;
     float roughness;
 };
 
