@@ -12,21 +12,19 @@ bool sphere::hit(const ray &r, float t_min, float t_max, hit_record &rec) const 
     float discriminant = b * b - a * c;
     if(discriminant > 0) {
         float temp = (-b - sqrt(discriminant)) / a;
+        rec.t = temp;
+        rec.p = r.point_at_parameter(temp);
+        rec.normal = (rec.p - center) / radius;
+        rec.mat = mat;
         if(temp < t_max && temp > t_min) {
             // The hit position is within the allowed ray range
-            rec.t = temp;
-            rec.p = r.point_at_parameter(temp);
-            rec.normal = (rec.p - center) / radius;
             return true;
         }
 
         temp = (-b + sqrt(discriminant)) / a;
+        rec.t = temp;
         // Check if the ray hit the back face of the sphere
         if(temp < t_max && temp > t_min) {
-            // The hit position is within the allowed ray range
-            rec.t = temp;
-            rec.p = r.point_at_parameter(temp);
-            rec.normal = (rec.p - center) / radius;
             return true;
         }
     }

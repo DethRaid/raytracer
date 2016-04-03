@@ -11,7 +11,9 @@
 class sphere : public surface {
 public:
     sphere() {}
-    sphere(vec3 cent, float r) : center(cent), radius(r) {}
+    sphere(vec3 cent, float r, material *surface_material) : center(cent), radius(r) {
+        mat = surface_material;
+    }
     virtual bool hit(const ray &r, float t_min, float t_max, hit_record &rec) const;
 private:
     vec3 center;

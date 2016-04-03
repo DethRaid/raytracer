@@ -11,7 +11,7 @@
 
 class camera {
 public:
-    camera() : lower_left_corner(-2, -1, -1), horizontal(4, 0, 0), vertical(0, 2, 0), origin(0) {}
+    camera(vec3 lookfrom, vec3 lookat, vec3 vup, float fov, float aspect, float aperature, float focus_dist);
 
     ray get_ray(float u, float v);
 private:
@@ -19,6 +19,7 @@ private:
     vec3 horizontal;
     vec3 vertical;
     vec3 origin;
+    float lens_radius;
 };
 
 
