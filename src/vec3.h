@@ -12,6 +12,7 @@
 class vec3 {
 public:
     vec3() {};
+    vec3(float e0) {e[0] = e0; e[1] = e0; e[2] = e0;}
     vec3(float e0, float e1, float e2) {e[0] = e0; e[1] = e1; e[2] = e2;}
 
     inline float x() const { return e[0]; }
@@ -143,7 +144,7 @@ inline vec3 cross(const vec3 &v1, const vec3 &v2) {
                 v1.x() * v2.y() - v1.y() * v2.x());
 }
 
-inline vec3 unit_vector(vec3 &v) {
+inline vec3 unit_vector(vec3 v) {
     return v / v.length();
 }
 
