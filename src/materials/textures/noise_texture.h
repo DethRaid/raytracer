@@ -12,8 +12,8 @@
 class noise_texture : public texture {
 public:
     noise_texture() {}
-    virtual vec3 value(float u, float v, const vec3 &p) const {
-        return vec3(1) * noise.noise(p);
+    virtual glm::vec3 value(float u, float v, const glm::vec3 &p) const {
+        return glm::vec3(1) * noise.noise(p);
     }
 private:
     perlin noise;

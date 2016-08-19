@@ -5,7 +5,7 @@
 #ifndef RAYTRACER_AABB_H
 #define RAYTRACER_AABB_H
 
-#include "../vec3.h"
+#include <gl/glm/glm.hpp>
 #include "../ray.h"
 
 inline float ffmin(float a, float b) { return a < b ? a : b; }
@@ -17,15 +17,15 @@ inline float ffmax(float a, float b) { return a > b ? a : b; }
 class aabb {
 public:
     aabb() {}
-    aabb(const vec3 &a, const vec3 &b) { _min = a; _max = b; }
-    vec3 min() const { return _min; }
-    vec3 max() const { return _max; }
+    aabb(const glm::vec3 &a, const glm::vec3 &b) { _min = a; _max = b; }
+    glm::vec3 min() const { return _min; }
+    glm::vec3 max() const { return _max; }
 
     bool hit(const ray &r, float tmin, float tmax) const;
 
 private:
-    vec3 _min;
-    vec3 _max;
+    glm::vec3 _min;
+    glm::vec3 _max;
 };
 
 

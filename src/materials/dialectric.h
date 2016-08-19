@@ -11,7 +11,7 @@
 class dialectric : public material {
 public:
     dialectric(float ri);
-    virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray &scattered) const;
+    virtual bool scatter(const ray &r_in, const hit_record &rec, glm::vec3 &attenuation, ray &scattered) const;
 
 private:
     float n;

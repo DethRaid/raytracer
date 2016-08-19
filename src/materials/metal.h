@@ -12,7 +12,7 @@
 class metal : public material {
 public:
     metal(texture * a, float r);
-    virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray &scattered) const;
+    virtual bool scatter(const ray &r_in, const hit_record &rec, glm::vec3 &attenuation, ray &scattered) const;
 
 private:
     texture * specular_color;

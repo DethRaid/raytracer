@@ -7,12 +7,12 @@
 
 dialectric::dialectric(float ri) : n(ri) { }
 
-bool dialectric::scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray &scattered) const {
-    vec3 outward_normal;
-    vec3 reflected = reflect(r_in.direction(), rec.normal);
+bool dialectric::scatter(const ray &r_in, const hit_record &rec, glm::vec3 &attenuation, ray &scattered) const {
+    glm::vec3 outward_normal;
+    glm::vec3 reflected = reflect(r_in.direction(), rec.normal);
     float ni_over_nt;
-    attenuation = vec3(1);
-    vec3 refracted;
+    attenuation = glm::vec3(1);
+    glm::vec3 refracted;
     float reflect_prob;
     float cosine;
 
@@ -26,16 +26,16 @@ bool dialectric::scatter(const ray &r_in, const hit_record &rec, vec3 &attenuati
         cosine = -dot(r_in.direction(), rec.normal) / r_in.direction().length();
     }
 
-    if(refract(r_in.direction(), outward_normal, ni_over_nt, refracted)) {
+    if(refract_ray(r_in.direction(), outward_normal, ni_over_nt, refracted)) {
         reflect_prob = schlick(cosine, n);
     } else {
         reflect_prob = 1;
     }
 
     if(drand() < reflect_prob) {
-        scattered = ray(rec.p, reflected);
+        scattered = ray(rec.hit_point, reflected);
     } else {
-        scattered = ray(rec.p, refracted);
+        scattered = ray(rec.hit_point, refracted);
     }
 
     return true;

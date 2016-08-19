@@ -2,9 +2,11 @@
 #include <fstream>
 #include <cfloat>
 #include <ctime>
-#include <cstdlib>
+#include <GL/glm/glm.hpp>
 
-#include "vec3.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include "ray.h"
 #include "scene.h"
 #include "surfaces/sphere.h"
@@ -16,29 +18,28 @@
 #include "materials/dialectric.h"
 #include "bvh/bvh_node.h"
 #include "materials/textures/constant_texture.h"
-#include "materials/checker_texture.h"
-#include "materials/textures/noise_texture.h"
+#include "materials/textures/image_texture.h"
 
-vec3 color(const ray &r, hitable *world, int depth) {
+glm::vec3 color(const ray &r, hitable *world, int depth) {
     hit_record rec;
     if(world->hit(r, 0.0, FLT_MAX, rec)) {
         ray scattered;
-        vec3 attenuation;
+        glm::vec3 attenuation;
         if(depth < 50 && rec.mat->scatter(r, rec, attenuation, scattered)) {
             return attenuation * color(scattered, world, depth + 1);
         } else {
-            return vec3(0);
+            return glm::vec3(0);
         }
     } else {
-        vec3 unit_direction = unit_vector(r.direction());
-        float t = 0.5f * (unit_direction.y() + 1.0f);
-        return (1.0 - t) * vec3(1.0) + t * vec3(0.5, 0.7, 1.0);
+        glm::vec3 unit_direction = glm::normalize(r.direction());
+        float t = 0.5f * (unit_direction.y + 1.0f);
+        return glm::vec3(1.0) * (1.0f - t) + t * glm::vec3(0.5, 0.7, 1.0);
     }
 }
 
 int main() {
-    int nx = 200;
-    int ny = 100;
+    int nx = 400;
+    int ny = 200;
     int ns = 100;   // Number of rays per pixel
     srand((unsigned int) time(NULL));
 
@@ -48,45 +49,45 @@ int main() {
 
     std::vector<hitable *> surfaces;
 
+    int width, height, nn;
+    unsigned char * tex_data = stbi_load("img/earthmap.jpg", &width, &height, &nn, 0);
+
     surfaces.push_back(
             new sphere(
-                    vec3(0, 0, -1),
+                    glm::vec3(0, 0, -1),
                     0.5,
-                    new lambertian(new checker_texture(
-                            new constant_texture(vec3(0.2, 0.3, 0.1)),
-                            new constant_texture(vec3(0.9))
-                    ))
+                    new lambertian(new image_texture(tex_data, width, height))
             )
     );
     surfaces.push_back(
             new sphere(
-                    vec3(0, -100.5, -1),
+                    glm::vec3(0, -100.5, -1),
                     100,
-                    new lambertian(new noise_texture())
+                    new lambertian(new image_texture(tex_data, width, height))
             )
     );
     surfaces.push_back(
             new sphere(
-                    vec3(1, 0, -1),
+                    glm::vec3(1, 0, -1),
                     0.5,
-                    new metal(new constant_texture(vec3(0.8, 0.6, 0.2)), 0.3)));
+                    new metal(new constant_texture(glm::vec3(0.8, 0.6, 0.2)), 0.3)));
     surfaces.push_back(
             new sphere(
-                    vec3(-1, 0, -1),
+                    glm::vec3(-1, 0, -1),
                     0.5,
                     new dialectric(0.5)));
 
     hitable *world = new bvh_node(surfaces, 0, 0);
-    vec3 lookfrom(1, 1, 2);
-    vec3 lookat(0, 0, -1);
+    glm::vec3 lookfrom(1, 1, 2);
+    glm::vec3 lookat(0, 0, -1);
     float dist_to_focus = (lookfrom - lookat).length();
     float aperture = 0.1;
 
-    camera cam(lookfrom, lookat, vec3(0, 1, 0), 30, float(nx) / float(ny), aperture, dist_to_focus);
+    camera cam(lookfrom, lookat, glm::vec3(0, 1, 0), 30, float(nx) / float(ny), aperture, dist_to_focus);
 
     for(int j = ny - 1; j >= 0; j-- ) {
         for(int i = 0; i < nx; i++) {
-            vec3 col(0);
+            glm::vec3 col(0);
 
             for(int s = 0; s < ns; s++) {
                 float u = (i + drand()) / float(nx);
@@ -97,11 +98,11 @@ int main() {
             }
 
             col /= float(ns);
-            col = vec3(sqrt(col.r()), sqrt(col.g()), sqrt(col.z()));
+            col = glm::vec3(sqrt(col.r), sqrt(col.g), sqrt(col.z));
 
-            int ir = int(255.99 * col.r());
-            int ig = int(255.99 * col.g());
-            int ib = int(255.99 * col.b());
+            int ir = int(255.99 * col.r);
+            int ig = int(255.99 * col.g);
+            int ib = int(255.99 * col.b);
 
             out << ir << " " << ig << " " << ib << "\n";
         }

@@ -2,6 +2,8 @@
 // Created by David on 03-Apr-16.
 //
 
+#include <algorithm>
+
 #include "aabb.h"
 
 bool aabb::hit(const ray &r, float tmin, float tmax) const {

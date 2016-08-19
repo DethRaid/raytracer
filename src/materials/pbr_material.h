@@ -5,7 +5,6 @@
 #ifndef RAYTRACER_PBR_MATERIAL_H
 #define RAYTRACER_PBR_MATERIAL_H
 
-#include "../vec3.h"
 #include "../ray.h"
 #include "../surfaces/hitable.h"
 #include "textures/texture.h"
@@ -29,7 +28,7 @@ class pbr_material {
      * \param attenuation The attenuation color of the ray
      * \param scattered The ray that scatters away from this hitable
      */
-    virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray &scattered) const;
+    virtual bool scatter(const ray &r_in, const hit_record &rec, glm::vec3 &attenuation, ray &scattered) const;
 
     /*!
      * \brief Calculated the refraction/reflection ray from the hitable
@@ -38,8 +37,9 @@ class pbr_material {
      * \param hit_record The position and normal where the ray hit the hitable
      * \param attenuation The attenuation color of the ray
      * \param scattered The refracted ray
+     * \param color Which color to calcualte refraction for. Should be 0 for red, 1 for green, and 2 for blue
      */
-    virtual bool refract(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray &scattered) const;
+    virtual bool refract(const ray &r_in, const hit_record &rec, float attenuation, ray &scattered, int color) const;
 
 private:
     texture * ior;

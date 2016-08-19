@@ -3,6 +3,7 @@
 //
 
 #include <cstdlib>
+#include <iostream>
 #include <algorithm>
 #include "bvh_node.h"
 #include "../utils.h"
@@ -18,7 +19,7 @@ bool box_x_compare(const hitable * a, const hitable * b) {
         std::cerr << "No bounding box in bvh_node constructor!";
     }
 
-    return box_left.min().x() - box_right.min().x() < 0;
+    return box_left.min().x - box_right.min().x < 0;
 }
 
 bool box_y_compare(const hitable * a, const hitable * b) {
@@ -32,7 +33,7 @@ bool box_y_compare(const hitable * a, const hitable * b) {
         std::cerr << "No bounding box in bvh_node constructor!";
     }
 
-    return box_left.min().y() - box_right.min().y() < 0;
+    return box_left.min().y - box_right.min().y < 0;
 }
 
 bool box_z_compare(const hitable * a, const hitable * b) {
@@ -46,7 +47,7 @@ bool box_z_compare(const hitable * a, const hitable * b) {
         std::cerr << "No bounding box in bvh_node constructor!";
     }
 
-    return box_left.min().z() - box_right.min().z() < 0;
+    return box_left.min().z - box_right.min().z < 0;
 }
 
 bvh_node::bvh_node(std::vector<hitable *> list, float time0, float time1) {

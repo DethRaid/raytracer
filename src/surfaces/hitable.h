@@ -5,8 +5,6 @@
 #ifndef RAYTRACER_SURFACE_H
 #define RAYTRACER_SURFACE_H
 
-
-#include "../vec3.h"
 #include "../ray.h"
 #include "../bvh/aabb.h"
 
@@ -14,9 +12,11 @@ class material;
 
 struct hit_record {
     float t;
-    vec3 p;
-    vec3 normal;
+    glm::vec3 hit_point;
+    glm::vec3 normal;
     material *mat;
+    float u;
+    float v;
 };
 
 class hitable {
