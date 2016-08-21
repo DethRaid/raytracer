@@ -31,11 +31,11 @@ int main() {
     glm::vec3 vertical(0.0f, 2.0f, 0.0f);
     glm::vec3 origin(0.0f);
 
-    hitable *list[2];
-    list[0] = new sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f);
-    list[1] = new sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f);
+    std::vector<hitable*> list;
+    list.push_back(new sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f));
+    list.push_back(new sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f));
 
-    hitable *world = new hitable_list(list, 2);
+    hitable *world = new hitable_list(list);
 
     for(int j = ny - 1; j >= 0; j--) {
         for(int i = 0; i < nx; i++) {
