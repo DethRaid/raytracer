@@ -10,11 +10,11 @@
 
 class sphere : public hitable {
 public:
-    sphere();
+    sphere() {};
     sphere(glm::vec3 cen, float r) : center(cen), radius(r) {};
     virtual bool hit(const ray& r, float _tmin, float t_max, hit_record& rec) const;
 
-    glm::vec3 center
+    glm::vec3 center;
     float radius;
 };
 
