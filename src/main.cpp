@@ -12,21 +12,31 @@
 #include "hitables/hitable_list.h"
 #include "camera.h"
 
+float get_random_float() {
+    static std::random_device rd;
+
+    return float(rd()) / float(rd.max());
+}
+
+glm::vec3 random_in_unit_sphere() {
+    glm::vec3 p;
+    do {
+        p = glm::vec3(get_random_float(), get_random_float(), get_random_float()) * 2.0f - 1.0f;
+        // CLion, Y U NO PARSE TEMPLATES RIGHT?
+    } while(glm::length(p) >= 1.0f);
+    return p;
+}
+
 glm::vec3 color(const ray& r, hitable* world) {
     hit_record rec;
     if(world->hit(r, 0.0f, std::numeric_limits<float>::max(), rec)) {
-        return rec.normal * 0.5f + 0.5f;
+        glm::vec3 target = rec.p + rec.normal + random_in_unit_sphere();
+        return color(ray(rec.p, target - rec.p), world) * 0.5f;
     }
 
     glm::vec3 unit_direction = glm::normalize(r.direction());
     float t = 0.5f * (unit_direction.y + 1.0f);
     return (1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5f, 0.7f, 1.0f);
-}
-
-float get_random_float() {
-    static std::random_device rd;
-
-    return float(rd()) / float(rd.max());
 }
 
 int main() {
@@ -48,15 +58,13 @@ int main() {
     hitable *world = new hitable_list(list);
 
     camera cam;
-    std::default_random_engine generator;
-    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
 
     for(int j = ny - 1; j >= 0; j--) {
         for(int i = 0; i < nx; i++) {
             glm::vec3 col(0);
             for(int s = 0; s < ns; s++) {
-                float u = float(i + distribution(generator)) / float(nx);
-                float v = float(j + distribution(generator)) / float(ny);
+                float u = float(i + get_random_float()) / float(nx);
+                float v = float(j + get_random_float()) / float(ny);
                 ray r = cam.get_ray(u, v);
                 col += color(r, world);
             }
