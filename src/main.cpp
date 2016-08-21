@@ -15,6 +15,7 @@
 #include "utils.h"
 #include "materials/lambertian.h"
 #include "materials/metal.h"
+#include "materials/dialectric.h"
 
 glm::vec3 color(const ray& r, hitable* world, int depth) {
     hit_record rec;
@@ -49,8 +50,8 @@ int main() {
     std::vector<hitable*> list;
     list.push_back(new sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f, new lambertian(glm::vec3(0.8, 0.3, 0.3))));
     list.push_back(new sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new lambertian(glm::vec3(0.8, 0.8, 0.0))));
-    list.push_back(new sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new metal(glm::vec3(0.8, 0.6, 0.2), 1.0)));
-    list.push_back(new sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f, new metal(glm::vec3(0.8, 0.8, 0.80), 0.3)));
+    list.push_back(new sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new metal(glm::vec3(0.8, 0.6, 0.2), 0.0)));
+    list.push_back(new sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f, new dialectric(1.5)));
 
     hitable *world = new hitable_list(list);
 

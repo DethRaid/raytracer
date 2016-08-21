@@ -4,7 +4,7 @@ project(raytracer)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
-        src/main.cpp src/ray.cpp src/ray.h src/hitables/hitable.h src/hitables/sphere.cpp src/hitables/sphere.h src/hitables/hitable_list.cpp src/hitables/hitable_list.h src/camera.h src/materials/material.h src/materials/lambertian.h src/utils.h src/materials/metal.h)
+        src/main.cpp src/ray.cpp src/ray.h src/hitables/hitable.h src/hitables/sphere.cpp src/hitables/sphere.h src/hitables/hitable_list.cpp src/hitables/hitable_list.h src/camera.h src/materials/material.h src/materials/lambertian.h src/utils.h src/materials/metal.h src/materials/dialectric.h)
 
 add_executable(raytracer ${SOURCE_FILES})
 
