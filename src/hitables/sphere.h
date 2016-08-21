@@ -11,11 +11,12 @@
 class sphere : public hitable {
 public:
     sphere() {};
-    sphere(glm::vec3 cen, float r) : center(cen), radius(r) {};
+    sphere(glm::vec3 cen, float r, material* mat) : center(cen), radius(r), mat(mat) {};
     virtual bool hit(const ray& r, float _tmin, float t_max, hit_record& rec) const;
 
     glm::vec3 center;
     float radius;
+    material* mat;
 };
 
 #endif //RAYTRACER_SPHERE_H

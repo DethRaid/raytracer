@@ -10,28 +10,23 @@
 #include "hitables/hitable.h"
 #include "hitables/sphere.h"
 #include "hitables/hitable_list.h"
+#include "materials/material.h"
 #include "camera.h"
+#include "utils.h"
+#include "materials/lambertian.h"
+#include "materials/metal.h"
 
-float get_random_float() {
-    static std::random_device rd;
-
-    return float(rd()) / float(rd.max());
-}
-
-glm::vec3 random_in_unit_sphere() {
-    glm::vec3 p;
-    do {
-        p = glm::vec3(get_random_float(), get_random_float(), get_random_float()) * 2.0f - 1.0f;
-        // CLion, Y U NO PARSE TEMPLATES RIGHT?
-    } while(glm::length(p) >= 1.0f);
-    return p;
-}
-
-glm::vec3 color(const ray& r, hitable* world) {
+glm::vec3 color(const ray& r, hitable* world, int depth) {
     hit_record rec;
-    if(world->hit(r, 0.0f, std::numeric_limits<float>::max(), rec)) {
-        glm::vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-        return color(ray(rec.p, target - rec.p), world) * 0.5f;
+    if(world->hit(r, 0.0001f, std::numeric_limits<float>::max(), rec)) {
+        ray scattered;
+        glm::vec3 attenuation;
+        if(depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+            return attenuation * color(scattered, world, depth + 1);
+        } else {
+            // If the ray reaches the max recursion depth (or is absorbed by a material) then that ray gets no light
+            return glm::vec3(0);
+        }
     }
 
     glm::vec3 unit_direction = glm::normalize(r.direction());
@@ -52,8 +47,10 @@ int main() {
     glm::vec3 origin(0.0f);
 
     std::vector<hitable*> list;
-    list.push_back(new sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f));
-    list.push_back(new sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f));
+    list.push_back(new sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f, new lambertian(glm::vec3(0.8, 0.3, 0.3))));
+    list.push_back(new sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new lambertian(glm::vec3(0.8, 0.8, 0.0))));
+    list.push_back(new sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new metal(glm::vec3(0.8, 0.6, 0.2), 1.0)));
+    list.push_back(new sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f, new metal(glm::vec3(0.8, 0.8, 0.80), 0.3)));
 
     hitable *world = new hitable_list(list);
 
@@ -66,9 +63,10 @@ int main() {
                 float u = float(i + get_random_float()) / float(nx);
                 float v = float(j + get_random_float()) / float(ny);
                 ray r = cam.get_ray(u, v);
-                col += color(r, world);
+                col += color(r, world, 0);
             }
             col /= float(ns);
+            col = sqrt(col);
 
             int ir = int(255.99 * col.r);
             int ig = int(255.99 * col.g);
