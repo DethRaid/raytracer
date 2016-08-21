@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <numeric>
+#include <random>
 #include <gl/glm/glm.hpp>
 #include "ray.h"
 #include "hitables/hitable.h"
@@ -22,9 +23,17 @@ glm::vec3 color(const ray& r, hitable* world) {
     return (1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5f, 0.7f, 1.0f);
 }
 
+float get_random_float() {
+    static std::random_device rd;
+
+    return float(rd()) / float(rd.max());
+}
+
 int main() {
     int nx = 200;
     int ny = 100;
+    int ns = 100;
+
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
 
     glm::vec3 lower_left_corner(-2.0f, -1.0f, -1.0f);
@@ -39,14 +48,19 @@ int main() {
     hitable *world = new hitable_list(list);
 
     camera cam;
+    std::default_random_engine generator;
+    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
 
     for(int j = ny - 1; j >= 0; j--) {
         for(int i = 0; i < nx; i++) {
-            float u = float(i) / float(nx);
-            float v = float(j) / float(ny);
-            ray r = cam.get_ray(u, v);
-
-            glm::vec3 col = color(r, world);
+            glm::vec3 col(0);
+            for(int s = 0; s < ns; s++) {
+                float u = float(i + distribution(generator)) / float(nx);
+                float v = float(j + distribution(generator)) / float(ny);
+                ray r = cam.get_ray(u, v);
+                col += color(r, world);
+            }
+            col /= float(ns);
 
             int ir = int(255.99 * col.r);
             int ig = int(255.99 * col.g);
