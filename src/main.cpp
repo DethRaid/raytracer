@@ -9,6 +9,7 @@
 #include "hitables/hitable.h"
 #include "hitables/sphere.h"
 #include "hitables/hitable_list.h"
+#include "camera.h"
 
 glm::vec3 color(const ray& r, hitable* world) {
     hit_record rec;
@@ -37,11 +38,13 @@ int main() {
 
     hitable *world = new hitable_list(list);
 
+    camera cam;
+
     for(int j = ny - 1; j >= 0; j--) {
         for(int i = 0; i < nx; i++) {
             float u = float(i) / float(nx);
             float v = float(j) / float(ny);
-            ray r(origin, lower_left_corner + u * horizontal + v * vertical);
+            ray r = cam.get_ray(u, v);
 
             glm::vec3 col = color(r, world);
 
