@@ -8,6 +8,8 @@
 #include <random>
 #include <GL/glm/glm.hpp>
 
+#define M_PI           3.14159265358979323846f  /* pi */
+
 float get_random_float() {
     static std::random_device rd;
 
@@ -20,6 +22,15 @@ glm::vec3 random_in_unit_sphere() {
         p = glm::vec3(get_random_float(), get_random_float(), get_random_float()) * 2.0f - 1.0f;
         // CLion, Y U NO PARSE TEMPLATES RIGHT?
     } while(glm::length(p) >= 1.0f);
+    return p;
+}
+
+glm::vec3 random_in_unit_disk() {
+    glm::vec3 p;
+    do {
+        p = glm::vec3(get_random_float(), get_random_float(), 0.0f) * 2.0f - glm::vec3(1.0f, 1.0f, 0.0f);
+        // CLion, Y U NO PARSE TEMPLATES RIGHT?
+    } while(glm::dot(p, p) >= 1.0f);
     return p;
 }
 

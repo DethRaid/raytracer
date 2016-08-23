@@ -47,15 +47,24 @@ int main() {
     glm::vec3 vertical(0.0f, 2.0f, 0.0f);
     glm::vec3 origin(0.0f);
 
+    float R = (float)cos(M_PI / 4.0f);
     std::vector<hitable*> list;
     list.push_back(new sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f, new lambertian(glm::vec3(0.8, 0.3, 0.3))));
     list.push_back(new sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new lambertian(glm::vec3(0.8, 0.8, 0.0))));
     list.push_back(new sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new metal(glm::vec3(0.8, 0.6, 0.2), 0.0)));
     list.push_back(new sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f, new dialectric(1.5)));
 
+    //list.push_back(new sphere(glm::vec3(-R, 0.0f, -1.0f), R, new lambertian(glm::vec3(0.0f, 0.0f, 1.0f))));
+    //list.push_back(new sphere(glm::vec3( R, 0.0f, -1.0f), R, new lambertian(glm::vec3(1.0f, 0.0f, 0.0f))));
+
     hitable *world = new hitable_list(list);
 
-    camera cam;
+    glm::vec3 lookfrom(3.0f, 3.0f, 2.0f);
+    glm::vec3 lookat(0.0f, 0.0f, -1.0f);
+    float dist_to_focus = glm::length(lookfrom - lookat);
+    float aperture = 2.0f;
+
+    camera cam(lookfrom, lookat, glm::vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx) / float(ny), aperture, dist_to_focus);
 
     for(int j = ny - 1; j >= 0; j--) {
         for(int i = 0; i < nx; i++) {
