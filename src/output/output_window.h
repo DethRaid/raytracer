@@ -26,12 +26,11 @@ public:
      *
      * This method causes the window to re-draw. It also creates a new texture
      *
-     * \param texture_data The raw pixels of the image
+     * \param texture_data The raw pixels of the image. All pixels are RGB
      * \param width The width of the image
      * \param height The height of the image
-     * \param comp The number of components in the image
      */
-    void set_texture(std::vector<glm::vec3> &texture_data, unsigned width, unsigned height, unsigned char comp);
+    void set_texture(std::vector<glm::vec3> &texture_data, unsigned width, unsigned height);
 
 private:
     GLFWwindow* glfw_window;

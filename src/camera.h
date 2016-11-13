@@ -5,16 +5,17 @@
 #ifndef RAYTRACER_CAMERA_H
 #define RAYTRACER_CAMERA_H
 
+#include <math.h>
 #include "ray.h"
 #include "utils.h"
 
 class camera {
 public:
-    camera(glm::vec3 lookfrom, glm::vec3 lookat, glm::vec3 vup, float vfov, float aspect, float aperture, float focus_dist) {
+    camera(unsigned samples, glm::ivec2 viewport, glm::vec3 lookfrom, glm::vec3 lookat, glm::vec3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1) : samples(samples), viewport(viewport), time0(t0), time1(t1) {
         lens_radius = aperture / 2.0f;
 
         float theta = vfov * M_PI / 180.0f;
-        float half_height = (float)tan(theta / 2.0f);
+        float half_height = tan(theta / 2.0f);
         float half_width = aspect * half_height;
 
         origin = lookfrom;
@@ -28,9 +29,11 @@ public:
     }
 
     ray get_ray(float s, float t) {
+        static thread_local std::random_device random;
         glm::vec3 rd = lens_radius * random_in_unit_disk();
         glm::vec3 offset = u * rd.x + v * rd.y;
-        return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset);
+        float time = time0 + random() * (time1 - time0);
+        return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, time);
     };
 
     glm::vec3 lower_left_corner;
@@ -38,7 +41,11 @@ public:
     glm::vec3 horizontal;
     glm::vec3 vertical;
     glm::vec3 u, v, w;
+    glm::ivec2 viewport;
     float lens_radius;
+    unsigned samples;
+
+    float time0, time1;
 };
 
 

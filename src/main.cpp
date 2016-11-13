@@ -5,6 +5,9 @@
 #include <iostream>
 #include <numeric>
 #include <random>
+#include <math.h>
+#include <thread>
+#include <ctime>
 #include "ray.h"
 #include "hitables/hitable.h"
 #include "hitables/sphere.h"
@@ -34,13 +37,31 @@ glm::vec3 color(const ray& r, hitable* world, int depth) {
     return (1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5f, 0.7f, 1.0f);
 }
 
-int main() {
-    output_window window(640, 480);
-    int nx = 200;
-    int ny = 100;
-    int ns = 100;
+void render_screen_part(glm::ivec2 offset, glm::ivec2 size, camera& cam, hitable *world, std::vector<glm::vec3> &output_buffer) {
+    for(int y = offset.y; y < size.y; y++) {
+        for(int x = offset.x; x < size.x; x++) {
+            glm::vec3 col(0);
+            for(int s = 0; s < cam.samples; s++) {
+                float u = float(x + get_random_float()) / float(cam.viewport.x);
+                float v = float(y + get_random_float()) / float(cam.viewport.y);
+                ray r = cam.get_ray(u, v);
+                col += color(r, world, 0);
+            }
+            col /= float(cam.samples);
+            col = glm::sqrt(col);
 
-    std::cout << "P3\n" << nx << " " << ny << "\n255\n";
+            int output_index = x + size.x * y;
+            output_buffer[output_index] = col;
+        }
+    }
+}
+
+int main() {
+    unsigned int nx = 200;
+    unsigned int ny = 100;
+    unsigned int ns = 100;
+
+    output_window window(nx * 3, ny * 3);
 
     glm::vec3 lower_left_corner(-2.0f, -1.0f, -1.0f);
     glm::vec3 horizontal(4.0f, 0.0f, 0.0f);
@@ -62,27 +83,39 @@ int main() {
     glm::vec3 lookfrom(3.0f, 3.0f, 2.0f);
     glm::vec3 lookat(0.0f, 0.0f, -1.0f);
     float dist_to_focus = glm::length(lookfrom - lookat);
-    float aperture = 2.0f;
+    float aperture = 0.1f;
 
-    camera cam(lookfrom, lookat, glm::vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx) / float(ny), aperture, dist_to_focus);
+    camera cam(ns, glm::ivec2(nx, ny), lookfrom, lookat, glm::vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx) / float(ny), aperture, dist_to_focus);
 
-    for(int j = ny - 1; j >= 0; j--) {
-        for(int i = 0; i < nx; i++) {
-            glm::vec3 col(0);
-            for(int s = 0; s < ns; s++) {
-                float u = float(i + get_random_float()) / float(nx);
-                float v = float(j + get_random_float()) / float(ny);
-                ray r = cam.get_ray(u, v);
-                col += color(r, world, 0);
-            }
-            col /= float(ns);
-            col = sqrt(col);
+    std::vector<glm::vec3> rendered_image;
+    rendered_image.reserve((unsigned long long int) (nx * ny));
 
-            int ir = int(255.99 * col.r);
-            int ig = int(255.99 * col.g);
-            int ib = int(255.99 * col.b);
+    unsigned int num_threads = std::thread::hardware_concurrency();
+    unsigned y_per_thread = ny / num_threads;
+    double average_time = 0;
+    for(int test = 0; test < 10; test++) {
+        std::vector<std::thread> worker_threads;
 
-            std::cout << ir << " " << ig << " " << ib << "\n";
+        std::clock_t begin = std::clock();
+
+        for(unsigned char i = 0; i < num_threads; i++) {
+            worker_threads.push_back(
+                    std::thread(
+                            render_screen_part, glm::ivec2(0, y_per_thread * i), glm::ivec2(nx, y_per_thread * (i + 1)),
+                            std::ref(cam), std::ref(world), std::ref(rendered_image)));
         }
+
+        for(auto &thread : worker_threads) {
+            thread.join();
+        }
+
+        std::clock_t end = std::clock();
+
+        average_time += double(end - begin) / CLOCKS_PER_SEC;
     }
+    average_time /= 10;
+
+    std::cout << "Rendering completed in " << average_time << " seconds with " << num_threads << " threads\n";
+
+    window.set_texture(rendered_image, nx, ny);
 }
