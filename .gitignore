@@ -91,3 +91,5 @@ fabric.properties
 *.app
 
 build/
+
+tmp/

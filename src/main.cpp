@@ -5,17 +5,16 @@
 #include <iostream>
 #include <numeric>
 #include <random>
-#include <gl/glm/glm.hpp>
 #include "ray.h"
 #include "hitables/hitable.h"
 #include "hitables/sphere.h"
 #include "hitables/hitable_list.h"
 #include "materials/material.h"
 #include "camera.h"
-#include "utils.h"
 #include "materials/lambertian.h"
 #include "materials/metal.h"
 #include "materials/dialectric.h"
+#include "output/output_window.h"
 
 glm::vec3 color(const ray& r, hitable* world, int depth) {
     hit_record rec;
@@ -36,6 +35,7 @@ glm::vec3 color(const ray& r, hitable* world, int depth) {
 }
 
 int main() {
+    output_window window(640, 480);
     int nx = 200;
     int ny = 100;
     int ns = 100;
@@ -47,7 +47,7 @@ int main() {
     glm::vec3 vertical(0.0f, 2.0f, 0.0f);
     glm::vec3 origin(0.0f);
 
-    float R = (float)cos(M_PI / 4.0f);
+    float R = (float)std::cos(M_PI / 4.0f);
     std::vector<hitable*> list;
     list.push_back(new sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f, new lambertian(glm::vec3(0.8, 0.3, 0.3))));
     list.push_back(new sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new lambertian(glm::vec3(0.8, 0.8, 0.0))));

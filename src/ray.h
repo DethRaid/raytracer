@@ -5,7 +5,7 @@
 #ifndef RAYTRACER_RAY_H
 #define RAYTRACER_RAY_H
 
-#include <gl/glm/glm.hpp>
+#include "3rdparty/glm/glm/glm.hpp"
 
 class ray {
 public:

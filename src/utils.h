@@ -6,9 +6,7 @@
 #define RAYTRACER_UTILS_H
 
 #include <random>
-#include <GL/glm/glm.hpp>
-
-#define M_PI           3.14159265358979323846f  /* pi */
+#include "3rdparty/glm/glm/glm.hpp"
 
 float get_random_float() {
     static std::random_device rd;
