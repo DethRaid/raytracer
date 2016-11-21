@@ -13,7 +13,7 @@ bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const 
     float discriminant = b * b - 4 * a * c;
 
     if(discriminant > 0.0f) {
-        float temp = (-b - (float)sqrt(discriminant)) / (2.0f * a);
+        float temp = (-b - std::sqrt(discriminant)) / (2.0f * a);
         if(temp < t_max && temp > t_min) {
             rec.t = temp;
             rec.p = r.point_at_parameter(rec.t);
@@ -22,7 +22,7 @@ bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const 
             return true;
         }
 
-        temp = (-b + (float)sqrt(discriminant)) / (2.0f * a);
+        temp = (-b + std::sqrt(discriminant)) / (2.0f * a);
         if(temp < t_max && temp > t_min) {
             rec.t = temp;
             rec.p = r.point_at_parameter(rec.t);
@@ -33,5 +33,10 @@ bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const 
     }
 
     return false;
+}
+
+bool sphere::compute_bounding_box(float t0, float t1, aabb &box) const {
+    box = aabb(center - glm::vec3(radius), center + glm::vec3(radius));
+    return true;
 }
 

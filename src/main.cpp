@@ -11,13 +11,14 @@
 #include "ray.h"
 #include "hitables/hitable.h"
 #include "hitables/sphere.h"
-#include "hitables/hitable_list.h"
 #include "materials/material.h"
 #include "camera.h"
 #include "materials/lambertian.h"
 #include "materials/metal.h"
 #include "materials/dialectric.h"
-#include "output/output_window.h"
+#include "gl/output_window.h"
+#include "hitables/moving_sphere.h"
+#include "hitables/bvh_node.h"
 
 glm::vec3 color(const ray& r, hitable* world, int depth) {
     hit_record rec;
@@ -35,6 +36,35 @@ glm::vec3 color(const ray& r, hitable* world, int depth) {
     glm::vec3 unit_direction = glm::normalize(r.direction());
     float t = 0.5f * (unit_direction.y + 1.0f);
     return (1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5f, 0.7f, 1.0f);
+}
+
+hitable * random_scene() {
+    std::vector<hitable *> list;
+    list.push_back(new sphere(glm::vec3(0, -1000, 0), 1000, new lambertian(glm::vec3(0.5))));
+
+    for(int a = -10; a < 10; a++) {
+        for(int b = -10; b < 10; b++) {
+            float chose_mat = get_random_float();
+            glm::vec3 center(a + 0.9 * get_random_float(), 0.2, b + 0.9 * get_random_float());
+
+            if(glm::length(center - glm::vec3(4, 0.2, 0)) > 0.9) {
+                if(chose_mat < 0.8) {   // diffuse
+                    list.push_back(new sphere(center, 0.2, new lambertian(glm::vec3(get_random_float(), get_random_float(), get_random_float()))));
+
+                } else if(chose_mat < 0.95) {   // metal
+                    list.push_back(new sphere(center, 0.2, new metal(glm::vec3(0.5 * (1 + get_random_float()), 0.5 * (1 + get_random_float()), 0.5 * (1 + get_random_float())), 0.5f * get_random_float())));
+
+                } else {    // glass
+                    list.push_back(new sphere(center, 0.2, new dialectric(1.5)));
+                }
+            }
+        }
+    }
+
+    list.push_back(new sphere(glm::vec3(-4, 1, 0), 1.0, new lambertian(glm::vec3(0.4, 0.2, 0.1))));
+    list.push_back(new sphere(glm::vec3(4, 1, 0), 1.0, new metal(glm::vec3(0.7, 0.6, 0.5), 0)));
+
+    return new bvh_node(list.data(), (int) list.size(), 0, 1);
 }
 
 void render_screen_part(glm::ivec2 offset, glm::ivec2 size, camera& cam, hitable *world, std::vector<glm::vec3> &output_buffer) {
@@ -57,35 +87,28 @@ void render_screen_part(glm::ivec2 offset, glm::ivec2 size, camera& cam, hitable
 }
 
 int main() {
-    unsigned int nx = 200;
-    unsigned int ny = 100;
-    unsigned int ns = 100;
+    unsigned int nx = 600;
+    unsigned int ny = 300;
+    unsigned int ns = 50;
 
-    output_window window(nx * 3, ny * 3);
+    output_window window(nx, ny);
 
     glm::vec3 lower_left_corner(-2.0f, -1.0f, -1.0f);
     glm::vec3 horizontal(4.0f, 0.0f, 0.0f);
     glm::vec3 vertical(0.0f, 2.0f, 0.0f);
     glm::vec3 origin(0.0f);
 
-    float R = (float)std::cos(M_PI / 4.0f);
-    std::vector<hitable*> list;
-    list.push_back(new sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f, new lambertian(glm::vec3(0.8, 0.3, 0.3))));
-    list.push_back(new sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new lambertian(glm::vec3(0.8, 0.8, 0.0))));
-    list.push_back(new sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new metal(glm::vec3(0.8, 0.6, 0.2), 0.0)));
-    list.push_back(new sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f, new dialectric(1.5)));
+    hitable *world = random_scene(); // new hitable_list(list);
 
-    //list.push_back(new sphere(glm::vec3(-R, 0.0f, -1.0f), R, new lambertian(glm::vec3(0.0f, 0.0f, 1.0f))));
-    //list.push_back(new sphere(glm::vec3( R, 0.0f, -1.0f), R, new lambertian(glm::vec3(1.0f, 0.0f, 0.0f))));
-
-    hitable *world = new hitable_list(list);
-
-    glm::vec3 lookfrom(3.0f, 3.0f, 2.0f);
-    glm::vec3 lookat(0.0f, 0.0f, -1.0f);
+    glm::vec3 lookfrom(12.0f, 3.0f, 12.0f);
+    glm::vec3 lookat(0.0f, 0.0f, 0.0f);
     float dist_to_focus = glm::length(lookfrom - lookat);
-    float aperture = 0.1f;
+    float aperture = 0.01f;
 
-    camera cam(ns, glm::ivec2(nx, ny), lookfrom, lookat, glm::vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx) / float(ny), aperture, dist_to_focus);
+    camera cam(
+            ns, glm::ivec2(nx, ny), lookfrom, lookat, glm::vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx) / float(ny),
+            aperture, dist_to_focus, 0, 1
+    );
 
     std::vector<glm::vec3> rendered_image;
     rendered_image.reserve((unsigned long long int) (nx * ny));
@@ -93,27 +116,24 @@ int main() {
     unsigned int num_threads = std::thread::hardware_concurrency();
     unsigned y_per_thread = ny / num_threads;
     double average_time = 0;
-    for(int test = 0; test < 10; test++) {
-        std::vector<std::thread> worker_threads;
+    std::vector<std::thread> worker_threads;
 
-        std::clock_t begin = std::clock();
+    std::clock_t begin = std::clock();
 
-        for(unsigned char i = 0; i < num_threads; i++) {
-            worker_threads.push_back(
-                    std::thread(
-                            render_screen_part, glm::ivec2(0, y_per_thread * i), glm::ivec2(nx, y_per_thread * (i + 1)),
-                            std::ref(cam), std::ref(world), std::ref(rendered_image)));
-        }
-
-        for(auto &thread : worker_threads) {
-            thread.join();
-        }
-
-        std::clock_t end = std::clock();
-
-        average_time += double(end - begin) / CLOCKS_PER_SEC;
+    for(unsigned char i = 0; i < num_threads; i++) {
+        worker_threads.push_back(
+                std::thread(
+                        render_screen_part, glm::ivec2(0, y_per_thread * i), glm::ivec2(nx, y_per_thread * (i + 1)),
+                        std::ref(cam), std::ref(world), std::ref(rendered_image)));
     }
-    average_time /= 10;
+
+    for(auto &thread : worker_threads) {
+        thread.join();
+    }
+
+    std::clock_t end = std::clock();
+
+    average_time += double(end - begin) / CLOCKS_PER_SEC;
 
     std::cout << "Rendering completed in " << average_time << " seconds with " << num_threads << " threads\n";
 

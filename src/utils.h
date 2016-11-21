@@ -5,49 +5,25 @@
 #ifndef RAYTRACER_UTILS_H
 #define RAYTRACER_UTILS_H
 
-#include <random>
 #include "3rdparty/glm/glm/glm.hpp"
+#include "bvh/aabb.h"
 
-float get_random_float() {
-    static std::random_device rd;
+float get_random_float();
 
-    return float(rd()) / float(rd.max());
-}
+glm::vec3 random_in_unit_sphere();
 
-glm::vec3 random_in_unit_sphere() {
-    glm::vec3 p;
-    do {
-        p = glm::vec3(get_random_float(), get_random_float(), get_random_float()) * 2.0f - 1.0f;
-        // CLion, Y U NO PARSE TEMPLATES RIGHT?
-    } while(glm::length(p) >= 1.0f);
-    return p;
-}
+glm::vec3 random_in_unit_disk();
 
-glm::vec3 random_in_unit_disk() {
-    glm::vec3 p;
-    do {
-        p = glm::vec3(get_random_float(), get_random_float(), 0.0f) * 2.0f - glm::vec3(1.0f, 1.0f, 0.0f);
-        // CLion, Y U NO PARSE TEMPLATES RIGHT?
-    } while(glm::dot(p, p) >= 1.0f);
-    return p;
-}
+bool refract(const glm::vec3& v, const glm::vec3& n, float ni_over_nt, glm::vec3& refracted);
 
-bool refract(const glm::vec3& v, const glm::vec3& n, float ni_over_nt, glm::vec3& refracted) {
-    glm::vec3 uv = glm::normalize(v);
-    float dt = glm::dot(uv, n);
-    float discriminant = 1.0f - ni_over_nt * ni_over_nt * (1.0f - dt * dt);
-    if(discriminant > 0) {
-        refracted = ni_over_nt * (v - n * dt) - n * (float)sqrt(discriminant);
-        return true;
-    } else {
-        return false;
-    }
-}
+float schlick(float cosine, float ref_idx);
 
-float schlick(float cosine, float ref_idx) {
-    float r0 = (1.0f - ref_idx) / (1.0f + ref_idx);
-    r0 = r0 * r0;
-    return r0 + (1.0f - r0) * (float)pow((1.0f - cosine), 5.0f);
-}
+aabb surrounding_box(aabb box0, aabb box1);
+
+int box_x_compare(const void * a, const void * b);
+
+int box_y_compare(const void * a, const void * b);
+
+int box_z_compare(const void * a, const void * b);
 
 #endif //RAYTRACER_UTILS_H

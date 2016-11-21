@@ -10,10 +10,10 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/src/3rdparty/glad/include)
 
 set(SOURCE_FILES
         src/main.cpp src/ray.h src/hitables/hitable.h src/hitables/sphere.cpp src/hitables/sphere.h
-        src/hitables/hitable_list.cpp src/hitables/hitable_list.h src/camera.h src/materials/material.h
+        src/camera.h src/materials/material.h
         src/materials/lambertian.h src/utils.h src/materials/metal.h src/materials/dialectric.h
-        src/output/output_window.cpp src/output/output_window.h
-        src/3rdparty/glad/src/glad.c src/hitables/moving_sphere.cpp src/hitables/moving_sphere.h)
+        src/gl/output_window.cpp src/gl/output_window.h
+        src/3rdparty/glad/src/glad.c src/hitables/moving_sphere.h src/bvh/aabb.h src/hitables/bvh_node.h src/hitables/bvh_node.cpp src/utils.cpp src/gl/wireframe_renderer.cpp src/gl/wireframe_renderer.h)
 
 add_executable(raytracer ${SOURCE_FILES})
 
