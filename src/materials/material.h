@@ -11,6 +11,7 @@
 class material {
 public:
     virtual bool scatter(const ray& r_in, const hit_record& rec, glm::vec3& attenuation, ray& scattered) const = 0;
+    virtual glm::vec3 get_color() = 0;
 };
 
 #endif //RAYTRACER_MATERIAL_H

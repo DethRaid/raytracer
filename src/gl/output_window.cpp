@@ -138,7 +138,6 @@ void output_window::create_fullscreen_quad() {
             2, 1, 3
     };
 
-    GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -192,7 +191,7 @@ void output_window::create_shader_program() {
     check_for_shader_errors(vertex_shader_name);
     check_for_shader_errors(fragment_shader_name);
 
-    auto program = glCreateProgram();
+    program = glCreateProgram();
     glAttachShader(program, vertex_shader_name);
     glAttachShader(program, fragment_shader_name);
 
@@ -254,10 +253,17 @@ output_window::set_texture(std::vector<glm::vec3> &texture_data, unsigned width,
 
     glBindTextureUnit(0, texture);
 
+    glUseProgram(program);
+    glBindVertexArray(vao);
+
     while(!glfwWindowShouldClose(glfw_window)) {
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
-        glfwPollEvents();
-        glfwSwapBuffers(glfw_window);
+        prepare_next_frame();
     }
+}
+
+void output_window::prepare_next_frame() {
+    glfwPollEvents();
+    glfwSwapBuffers(glfw_window);
 }

@@ -19,6 +19,7 @@
 #include "gl/output_window.h"
 #include "hitables/moving_sphere.h"
 #include "hitables/bvh_node.h"
+#include "gl/wireframe_renderer.h"
 
 glm::vec3 color(const ray& r, hitable* world, int depth) {
     hit_record rec;
@@ -87,8 +88,8 @@ void render_screen_part(glm::ivec2 offset, glm::ivec2 size, camera& cam, hitable
 }
 
 int main() {
-    unsigned int nx = 600;
-    unsigned int ny = 300;
+    unsigned int nx = 1500;
+    unsigned int ny = 750;
     unsigned int ns = 50;
 
     output_window window(nx, ny);
@@ -100,7 +101,7 @@ int main() {
 
     hitable *world = random_scene(); // new hitable_list(list);
 
-    glm::vec3 lookfrom(12.0f, 3.0f, 12.0f);
+    glm::vec3 lookfrom(20.0f, 50.0f, 20.0f);
     glm::vec3 lookat(0.0f, 0.0f, 0.0f);
     float dist_to_focus = glm::length(lookfrom - lookat);
     float aperture = 0.01f;
@@ -109,6 +110,11 @@ int main() {
             ns, glm::ivec2(nx, ny), lookfrom, lookat, glm::vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx) / float(ny),
             aperture, dist_to_focus, 0, 1
     );
+
+    wireframe_renderer wire_render;
+    wire_render.set_scene(world);
+    wire_render.draw(cam);
+    window.prepare_next_frame();
 
     std::vector<glm::vec3> rendered_image;
     rendered_image.reserve((unsigned long long int) (nx * ny));

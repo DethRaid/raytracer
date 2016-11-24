@@ -48,6 +48,10 @@ public:
         return true;
     }
 
+    virtual glm::vec3 get_color() {
+        return glm::vec3(1);
+    }
+
     float ref_idx;
 };
 

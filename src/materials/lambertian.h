@@ -18,6 +18,10 @@ public:
         return true;
     }
 
+    virtual glm::vec3 get_color() {
+        return albedo;
+    }
+
     glm::vec3 albedo;
 };
 

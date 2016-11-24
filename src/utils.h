@@ -20,10 +20,4 @@ float schlick(float cosine, float ref_idx);
 
 aabb surrounding_box(aabb box0, aabb box1);
 
-int box_x_compare(const void * a, const void * b);
-
-int box_y_compare(const void * a, const void * b);
-
-int box_z_compare(const void * a, const void * b);
-
 #endif //RAYTRACER_UTILS_H

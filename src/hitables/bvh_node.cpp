@@ -6,19 +6,65 @@
  */
 
 #include <future>
+#include <algorithm>
 #include "bvh_node.h"
+
+int box_x_compare(const hitable * a, const hitable * b) {
+    if(a == NULL) {
+        return false;
+    } else if(b == NULL) {
+        return true;
+    }
+
+    aabb box_left, box_right;
+    if(!a->compute_bounding_box(0, 0, box_left) || !b->compute_bounding_box(0, 0, box_right)) {
+        std::cerr << "No bounding box could be constructed";
+    }
+
+    return box_left.min.x - box_right.min.x < 0;
+}
+
+int box_y_compare(const hitable * a, const hitable * b) {
+    if(a == NULL) {
+        return false;
+    } else if(b == NULL) {
+        return true;
+    }
+
+    aabb box_left, box_right;
+    if(!a->compute_bounding_box(0, 0, box_left) || !b->compute_bounding_box(0, 0, box_right)) {
+        std::cerr << "No bounding box could be constructed";
+    }
+
+    return box_left.min.y - box_right.min.y < 0;
+}
+
+int box_z_compare(const hitable * a, const hitable * b) {
+    if(a == NULL) {
+        return false;
+    } else if(b == NULL) {
+        return true;
+    }
+
+    aabb box_left, box_right;
+    if(!a->compute_bounding_box(0, 0, box_left) || !b->compute_bounding_box(0, 0, box_right)) {
+        std::cerr << "No bounding box could be constructed";
+    }
+
+    return box_left.min.z - box_right.min.z < 0;
+}
 
 bvh_node::bvh_node(hitable ** l, int n, float time0, float time1) {
     int axis = int(3 * get_random_float());
 
     if(axis == 0) {
-        qsort(l, n, sizeof(hitable *), box_x_compare);
+        std::sort(l, l + n, box_x_compare);
 
     } else if(axis == 1) {
-        qsort(l, n, sizeof(hitable *), box_y_compare);
+        std::sort(l, l + n, box_y_compare);
 
     } else if(axis == 2) {
-        qsort(l, n, sizeof(hitable *), box_z_compare);
+        std::sort(l, l + n, box_z_compare);
     }
 
     if(n == 1) {
@@ -79,14 +125,11 @@ bool bvh_node::compute_bounding_box(float t0, float t1, aabb &box) const {
 
 std::vector<glm::vec3> bvh_node::get_wireframe() {
     auto buffer = box.get_wireframe();
-    auto left_buffer_future = std::async(std::launch::async, left->get_wireframe);
-    auto right_buffer_future = std::async(std::launch::async, right->get_wireframe);
+    auto left_buffer = left->get_wireframe();
+    auto right_buffer = right->get_wireframe();
 
-    auto left_buffer = left_buffer_future.get();
-    auto right_buffer = left_buffer_future.get();
-
-    buffer.insert(left_buffer.begin(), left_buffer.end());
-    buffer.insert(right_buffer.begin(), right_buffer.end());
+    buffer.insert(buffer.end(), left_buffer.begin(), left_buffer.end());
+    buffer.insert(buffer.end(), right_buffer.begin(), right_buffer.end());
 
     return buffer;
 }

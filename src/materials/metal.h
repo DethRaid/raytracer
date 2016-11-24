@@ -18,6 +18,10 @@ public:
         return glm::dot(scattered.direction(), rec.normal) > 0.0f;
     }
 
+    virtual glm::vec3 get_color() {
+        return color;
+    }
+
     glm::vec3 color;
     float roughness;
 };

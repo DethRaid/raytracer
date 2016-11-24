@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <vector>
+#include <glad/glad.h>
 #include "../3rdparty/glfw/include/GLFW/glfw3.h"
 #include "../3rdparty/glm/glm/vec3.hpp"
 
@@ -32,8 +33,12 @@ public:
      */
     void set_texture(std::vector<glm::vec3> &texture_data, unsigned width, unsigned height);
 
+    void prepare_next_frame();
+
 private:
     GLFWwindow* glfw_window;
+    GLuint program;
+    GLuint vao;
 
     void create_window(unsigned int width, unsigned int height);
 

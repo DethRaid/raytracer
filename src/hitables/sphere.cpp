@@ -2,6 +2,7 @@
 // Created by ddubois on 21-Aug-16.
 //
 
+#include <math.h>
 #include "sphere.h"
 
 bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
@@ -38,5 +39,36 @@ bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const 
 bool sphere::compute_bounding_box(float t0, float t1, aabb &box) const {
     box = aabb(center - glm::vec3(radius), center + glm::vec3(radius));
     return true;
+}
+
+std::vector<glm::vec3> sphere::get_wireframe() {
+    // Build three circles, each aligned with one of the cardinal directions
+    auto buffer = std::vector<glm::vec3>{};
+
+    for(float i = 0; i < M_PI * 2; i += (M_PI * 2) / 16.0) {
+        glm::vec3 vec;
+        vec.x = std::sin(i) * radius;
+        vec.y = std::cos(i) * radius;
+        buffer.push_back(vec + center);
+        buffer.push_back(mat->get_color());
+    }
+
+    for(float i = 0; i < M_PI * 2; i += (M_PI * 2) / 16.0) {
+        glm::vec3 vec;
+        vec.x = std::sin(i) * radius;
+        vec.z = std::cos(i) * radius;
+        buffer.push_back(vec + center);
+        buffer.push_back(mat->get_color());
+    }
+
+    for(float i = 0; i < M_PI * 2; i += (M_PI * 2) / 16.0) {
+        glm::vec3 vec;
+        vec.z = std::sin(i) * radius;
+        vec.y = std::cos(i) * radius;
+        buffer.push_back(vec + center);
+        buffer.push_back(mat->get_color());
+    }
+
+    return buffer;
 }
 
